@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+.DS_Store
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Local data, results and containers
+data/
+results/
+logs/
+*.sif
+*.out
+
+# Environments / editors
+.venv/
+venv/
+.vscode/
+.idea/

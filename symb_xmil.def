@@ -1,0 +1,19 @@
+Bootstrap: docker
+From: python:3.10-slim
+
+%files
+    requirements.txt requirements.txt
+
+%post
+    chmod 1777 /tmp  # needed on some HPC systems to allow apt inside the build
+
+    apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        gcc \
+        libopenslide0 \
+        openslide-tools \
+     && rm -rf /var/lib/apt/lists/*
+
+    pip install --root-user-action=ignore torch==2.0.1+cu118 torchvision==0.15.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+
+    pip install --no-cache-dir -r requirements.txt
