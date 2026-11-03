@@ -18,7 +18,7 @@ import torch
 # ---------------------------------------------------------------------------
 
 def apply_mask(batch: dict, subset: list, device: torch.device) -> dict:
-    """Return the sub-bag X_S: a copy of ``batch`` keeping only patches with concept in S."""
+    """Return the sub-bag X_S: a copy of ``batch`` keeping only patches with feature in S."""
     label_set = np.array(sorted(_flatten(subset)))
     patch_labels = batch["patch_labels"].cpu().numpy()        # [1, n_patches]
     keep = np.array([lbl in label_set for lbl in patch_labels[0]], dtype=bool)
@@ -88,7 +88,7 @@ class PerturbationScorer:
 # ---------------------------------------------------------------------------
 
 def _flatten(x):
-    """Flatten nested concepts (e.g. group concepts) to a list of labels."""
+    """Flatten nested features (e.g. group features) to a list of labels."""
     if isinstance(x, (list, tuple, set, frozenset)):
         out = []
         for item in x:

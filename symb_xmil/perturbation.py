@@ -16,7 +16,7 @@ def all_nonempty_subsets(concepts, max_subset_size=None):
 
 
 def flatten(x):
-    """Flatten nested concepts (e.g. group concepts) to a list of labels."""
+    """Flatten nested features (e.g. group features) to a list of labels."""
     if isinstance(x, (list, tuple, set, frozenset)):
         flat = []
         for item in x:
@@ -95,7 +95,7 @@ def mask(concept_subset, data_loader, device):
 
 
 def _concept_to_str(element) -> str:
-    """4 -> "4"; group concept (0,1,2) -> "(0,1,2)"."""
+    """4 -> "4"; group feature (0,1,2) -> "(0,1,2)"."""
     if isinstance(element, (tuple, list)):
         return "(" + ",".join(map(str, sorted(element))) + ")"
     return str(element)

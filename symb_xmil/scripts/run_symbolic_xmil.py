@@ -39,15 +39,15 @@ def get_args():
     parser.add_argument("--patch-metadata-dirs", type=str, nargs="+", required=True,
                         help="Directories with per-patch semantic annotations.")
     parser.add_argument("--semantic-map", type=str, required=True,
-                        help="Semantic map M assigning each patch a concept, e.g. 'camelyon'.")
+                        help="Semantic map M assigning each patch a feature, e.g. 'camelyon'.")
     parser.add_argument("--test-subsets", type=str, nargs="*", default=[])
 
     parser.add_argument("--concepts", type=str, required=True,
-                        help="Semantic concepts N as comma-separated patch-label ids, e.g. '0,1,2'.")
+                        help="Features N as comma-separated patch-label ids, e.g. '0,1,2'.")
     parser.add_argument("--max-subset-size", type=str, default="all",
-                        help="Maximum number of concepts in a subset S (|S|), or 'all' (as in the paper).")
+                        help="Maximum number of features in a subset S (|S|), or 'all' (as in the paper).")
     parser.add_argument("--max-query-size", type=int, default=3,
-                        help="k, the maximum number of concepts per query (<= 3).")
+                        help="k, the maximum number of features per query (<= 3).")
     parser.add_argument("--negation", action="store_true")
 
     parser.add_argument("--checkpoint", type=str, default="best")

@@ -74,6 +74,6 @@ def _flatten(x):
 
 
 def toy_concepts(num_numbers):
-    """Semantic concepts N = [4, 7, {all other digits}]."""
+    """Features N = [4, 7, {all other digits}]."""
     rest = tuple(i for i in range(num_numbers) if i not in (4, 7))
     return [4, 7, rest]

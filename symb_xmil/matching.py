@@ -19,7 +19,7 @@ def match_queries(
         f_df:        f(X_S) per bag (rows, ``slide_id``) and subset S (columns).
         query_gen:   QueryGenerator with the truth matrix already built.
         results_dir: If given, write the CSVs here.
-        save_mapped: Also save alignment scores with concept names instead of IDs.
+        save_mapped: Also save alignment scores with feature names instead of IDs.
     """
     scores_df = query_gen.alignment_scores(
         f_df,

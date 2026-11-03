@@ -35,17 +35,17 @@ def run_symbolic_xmil(
         dataloader:      DataLoader with batch_size=1.
         results_dir:     Output directory for the CSVs.
         query_gen:       QueryGenerator defining the queries (k, negation, M).
-        concepts:        The concepts N, e.g. [0, 1, 2]. Required.
+        concepts:        The features N, e.g. [0, 1, 2]. Required.
         max_subset_size: Maximum |S|. None (as in the paper) uses all subsets.
         verbose:         Print progress.
-        save_mapped:     Also save CSVs with concept names instead of IDs.
+        save_mapped:     Also save CSVs with feature names instead of IDs.
 
     Returns:
         {"f_df": f(X_S) per bag and subset, "best_df": q*(X) and all alignment scores}
     """
     if not concepts:
         raise ValueError(
-            "No semantic concepts given. Please provide the concepts N, "
+            "No features given. Please provide the features N, "
             "e.g. run_symbolic_xmil(..., concepts=[0, 1, 2])."
         )
 
@@ -130,7 +130,7 @@ def run_symbolic_xmil(
 # ---------------------------------------------------------------------------
 
 def _concept_set(concepts) -> set:
-    """N as a set, with group concepts as sorted tuples."""
+    """N as a set, with group features as sorted tuples."""
     return {
         tuple(sorted(c)) if isinstance(c, (list, tuple, set, frozenset)) else c
         for c in concepts

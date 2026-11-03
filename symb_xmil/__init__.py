@@ -2,12 +2,12 @@
 
 Notation (as in the paper), used throughout the package:
     X        bag (slide) of patches
-    M        semantic map, assigns each patch a concept
-    N        set of semantic concepts
+    M        semantic map, assigns each patch a feature
+    N        set of features
     S        non-empty subset of N
-    X_S      sub-bag of patches whose concept is in S
+    X_S      sub-bag of patches whose feature is in S
     f(X_S)   model output on X_S
-    k        maximum number of concepts per query
+    k        maximum number of features per query
     λ_q(S)   indicator of query q on S
     r_X(q,f) alignment score: Pearson correlation of f(X_S) and λ_q(S) over S
     q*(X)    best-aligned query

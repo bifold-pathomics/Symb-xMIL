@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def _sort_concepts(concepts):
-    """Plain concepts first, then group concepts."""
+    """Plain features first, then group features."""
     ints = sorted(c for c in concepts if isinstance(c, int))
     groups = sorted((c for c in concepts if isinstance(c, tuple)), key=lambda t: t[0])
     return ints + groups
@@ -15,7 +15,7 @@ def _sort_concepts(concepts):
 class QueryGenerator:
     """Generate queries q over N, build λ_q(S), and compute r_X(q, f)."""
 
-    # Semantic maps M: concept name -> patch label (tuple = group concept).
+    # Semantic maps M: feature name -> patch label (tuple = group feature).
     LABEL_MAPS = {
         'camelyon': {
             'Empty': -1, 'Normal': 0, 'Mix': 1, 'Tumor': 2
@@ -41,7 +41,7 @@ class QueryGenerator:
         Args:
             concepts:       N. Leave as None with ``run_symbolic_xmil``, which sets it.
             max_query_size: k (at most 3).
-            semantic_map:   Name of M, used to map concept IDs to names.
+            semantic_map:   Name of M, used to map feature IDs to names.
             negation:       Also generate queries with NOT.
         """
         self.concepts = concepts
@@ -68,7 +68,7 @@ class QueryGenerator:
     
     @staticmethod
     def _concept_str(f) -> str:
-        """Concept as used in query strings: 4 -> "4", (0,1,2) -> "(0,1,2)"."""
+        """Feature as used in query strings: 4 -> "4", (0,1,2) -> "(0,1,2)"."""
         if isinstance(f, (set, frozenset)):
             return "(" + ",".join(map(str, sorted(f))) + ")"
         if isinstance(f, (tuple, list)):
@@ -76,7 +76,7 @@ class QueryGenerator:
         return str(f)
 
     def generate_queries(self):
-        """Generate all queries over N with at most k concepts."""
+        """Generate all queries over N with at most k features."""
         if not self.concepts:
             raise ValueError("QueryGenerator.concepts is not set")
         if self.max_query_size > 3:
@@ -85,14 +85,14 @@ class QueryGenerator:
         queries_by_size = {1: [], 2: [], 3: []}
         concept_str = self._concept_str
 
-        # One-concept queries.
+        # One-feature queries.
         if self.max_query_size >= 1:
             for (a,) in itertools.combinations(self.concepts, 1):
                 queries_by_size[1].append(concept_str(a))
                 if self.negation:
                     queries_by_size[1].append(f"(¬{concept_str(a)})")
 
-        # Two-concept queries.
+        # Two-feature queries.
         if self.max_query_size >= 2:
             for a, b in itertools.combinations(self.concepts, 2):
                 sa, sb = concept_str(a), concept_str(b)
@@ -109,7 +109,7 @@ class QueryGenerator:
                         f"(¬{sa} ∨ ¬{sb})",
                     ])
 
-        # Three-concept queries.
+        # Three-feature queries.
         if self.max_query_size >= 3:
             for a, b, c in itertools.combinations(self.concepts, 3):
                 sa, sb, sc = concept_str(a), concept_str(b), concept_str(c)
@@ -167,18 +167,18 @@ class QueryGenerator:
         if s.startswith('¬'):
             return {'type': 'NOT', 'child': self._parse_expr(s[1:])}
         
-        # Parenthesised string: either a group-concept "(0,1,2,3)" or a
-        # sub-expression.  A group concept contains only digits, commas,
+        # Parenthesised string: either a group-feature "(0,1,2,3)" or a
+        # sub-expression.  A group feature contains only digits, commas,
         # and spaces — no logic operators.
         if s.startswith('(') and s.endswith(')'):
             inner = s[1:-1]
             if all(c in '0123456789, ' for c in inner):
-                # Group concept -> sorted tuple.
+                # Group feature -> sorted tuple.
                 members = tuple(sorted(int(x.strip()) for x in inner.split(',') if x.strip()))
                 return {'type': 'ATOM', 'value': members}
             return self._parse_expr(inner)
 
-        # Group concept stripped of parens, e.g. "0,1,2,3,5,6,8,9"
+        # Group feature stripped of parens, e.g. "0,1,2,3,5,6,8,9"
         if ',' in s and all(c in '0123456789, ' for c in s):
             members = tuple(sorted(int(x.strip()) for x in s.split(',') if x.strip()))
             return {'type': 'ATOM', 'value': members}
@@ -276,7 +276,7 @@ class QueryGenerator:
         }
 
     def _extract_concepts(self, ast: dict) -> set:
-        """Extract all semantic concept labels from an AST."""
+        """Extract all feature labels from an AST."""
         if ast['type'] == 'ATOM':
             return {ast['value']}
         if ast['type'] == 'NOT':
@@ -289,7 +289,7 @@ class QueryGenerator:
         return set()
 
     def _extract_negated_concepts(self, ast: dict) -> set:
-        """Extract semantic concept labels that are directly negated."""
+        """Extract feature labels that are directly negated."""
         if ast['type'] == 'ATOM':
             return set()
         if ast['type'] == 'NOT':
@@ -344,7 +344,7 @@ class QueryGenerator:
 
     @staticmethod
     def _norm_concept(c):
-        """Canonical form of one concept: int, or sorted tuple for a group concept."""
+        """Canonical form of one feature: int, or sorted tuple for a group feature."""
         if isinstance(c, (tuple, list)):
             return tuple(sorted(int(x) for x in c))
         if isinstance(c, str):
@@ -358,11 +358,11 @@ class QueryGenerator:
         return int(c) if isinstance(c, float) else c  # already int
 
     def normalize_subset(self, subset) -> tuple:
-        """Canonical tuple for subset S: plain concepts first, then group concepts."""
+        """Canonical tuple for subset S: plain features first, then group features."""
         if isinstance(subset, (int, float)):
             return (int(subset),)
         if isinstance(subset, (set, frozenset)):
-            # A bare set means one group concept, not several plain concepts.
+            # A bare set means one group feature, not several plain features.
             return (tuple(sorted(int(x) for x in subset)),)
         if isinstance(subset, str):
             subset = subset.strip()
@@ -476,10 +476,10 @@ class QueryGenerator:
     # =========================================================================
 
     def map_query_numbers_to_labels(self, q: str) -> str:
-        """Replace concept IDs in a query string with their names from M."""
+        """Replace feature IDs in a query string with their names from M."""
         q = str(q)
 
-        # Replace group concepts first: "(0,1,2,3,...)" -> label name.
+        # Replace group features first: "(0,1,2,3,...)" -> label name.
         def repl_group(m):
             members = tuple(
                 sorted(int(x.strip()) for x in m.group(1).split(',') if x.strip())
